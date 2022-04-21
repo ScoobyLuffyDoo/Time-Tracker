@@ -1,7 +1,8 @@
 import win32gui
 import time
+from datetime import datetime
 windowHist = []
-
+dateToday = datetime.today().strftime('%Y-%m-%d')
 
 def filterWindow(i_name):
     filteredName= i_name.replace('● ','') 
@@ -10,24 +11,35 @@ def filterWindow(i_name):
     # add the string to an array
     # Filter the string based on the name of the window 
     return filteredName
-
+def filterProgramName(i_window):
+    programData= i_window.split(' - ')
+    programDataLenth = len(programData)
+    name = programData[programDataLenth-1]
+    return name
 def main():
     x = time.perf_counter()
     while True:
         historyAmmount = len(windowHist)
         w=win32gui 
         oldWindow = filterWindow(w.GetWindowText(w.GetForegroundWindow()))
+        oldWindowName =filterProgramName(oldWindow)
         time.sleep(2)    
-        currentWindow = filterWindow( w.GetWindowText(w.GetForegroundWindow()))
-        if oldWindow == currentWindow:
+        currentWindowFilter = filterWindow( w.GetWindowText(w.GetForegroundWindow()))
+        currentWindowName = filterProgramName(currentWindowFilter)
+        if oldWindowName == currentWindowName:
             pass
         else:
             elapsed = time.perf_counter() - x
-            windowHist.append([{'Name':oldWindow},{'Time Elapsed':elapsed},{'Time Captured': datetime.now()}])
-            # windowHist.append({{oldWindow:round((elapsed/60),3)})
+            windowinfo=[{'Full Detail':oldWindow},
+            {'Program Name':oldWindowName},
+            {'Time Elapsed':f'{round((elapsed/60),2)} min'},
+            {'Time Captured':dateToday}
+            ]
+            # windowHist.append(windowinfo)
             x = time.perf_counter()
-        if historyAmmount < len(windowHist):
-            print(windowHist)
+        # if historyAmmount < len(windowHist):
+            print(windowinfo)
+            # Write record to json file and
 
 
 
