@@ -1,6 +1,11 @@
 import win32gui
 import time
 from datetime import datetime
+import json
+import sqlite3
+
+
+DB_path ='./data/TimeTrackerDB.db' 
 windowHist = []
 dateToday = datetime.today().strftime('%Y-%m-%d')
 
@@ -16,34 +21,55 @@ def filterProgramName(i_window):
     programDataLenth = len(programData)
     name = programData[programDataLenth-1]
     return name
+
+def createRecord(jsoninput,timeCaptured):
+    try:
+        values = str(jsoninput),str(timeCaptured)
+        cursor.execute(f'insert into ActivityTable Values(?,?)',values)
+        connection.commit()
+        output={"message":'Record Created'}
+    except sqlite3.IntegrityError as e:
+        output={"message":str(e) }
+    return 
+
+
+
 def main():
     x = time.perf_counter()
     while True:
         historyAmmount = len(windowHist)
         w=win32gui 
         oldWindow = filterWindow(w.GetWindowText(w.GetForegroundWindow()))
-        oldWindowName =filterProgramName(oldWindow)
+        oldWindowName =filterProgramName(oldWindow) 
         time.sleep(2)    
         currentWindowFilter = filterWindow( w.GetWindowText(w.GetForegroundWindow()))
         currentWindowName = filterProgramName(currentWindowFilter)
-        if oldWindowName == currentWindowName:
-            pass
+        if oldWindow == currentWindowFilter:
+           pass
         else:
-            elapsed = time.perf_counter() - x
-            windowinfo=[{'Full Detail':oldWindow},
-            {'Program Name':oldWindowName},
-            {'Time Elapsed':f'{round((elapsed/60),2)} min'},
-            {'Time Captured':dateToday}
-            ]
-            # windowHist.append(windowinfo)
+            elapsed = round(((time.perf_counter() - x)/60),2)
+            activityDetails={
+                "Full Details":oldWindow,
+                "Program Name":oldWindowName,       
+                "Time Elapsed":f'{elapsed} min',
+                "Time Captured":dateToday
+            }
+            jsonActivityData= json.dumps(activityDetails)
+            createRecord(jsonActivityData,dateToday)                    
             x = time.perf_counter()
-        # if historyAmmount < len(windowHist):
-            print(windowinfo)
-            # Write record to json file and
+            
+    
 
 
 
 if __name__ == '__main__':
-    main()
-
-    # this is a ?
+    try:
+        connection = sqlite3.connect(DB_path)            
+        cursor = connection.cursor()  
+        main()
+    except Exception as e:
+        print(e)
+    finally:
+        print("program Terminated ")
+        connection.close()  
+        
