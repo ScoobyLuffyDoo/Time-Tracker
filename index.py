@@ -52,6 +52,7 @@ def main():
            pass
         else:
             endTime = datetime.now().strftime('%H:%M:%S')
+            # convert time elapsed into readable format HH:MM::SS
             elapsed = round(((time.perf_counter() - x)/60),2)
             activityDetails={
                 "ProgramName": oldWindowName,
