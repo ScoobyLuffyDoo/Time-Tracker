@@ -16,16 +16,19 @@ def filterWindow(i_name):
     # add the string to an array
     # Filter the string based on the name of the window 
     return filteredName
+
 def filterProgramName(i_window):
     programData= i_window.split(' - ')
     programDataLenth = len(programData)
     name = programData[programDataLenth-1]
     return name
 
-def createRecord(jsoninput,timeCaptured):
+def createRecord(ProgramData):
+# def createRecord(jsoninput,timeCaptured):
     try:
-        values = str(jsoninput),str(timeCaptured)
-        cursor.execute(f'insert into ActivityTable Values(?,?)',values)
+        keys =["ProgramName","StartTime","EndTime","TimeElapsed","DateCaptured","FullProgramDetails"]
+        values = list(map(ProgramData.get,keys))
+        cursor.execute(f'insert into ActivityTable Values(?,?,?,?,?,?)',values)
         connection.commit()
         output={"message":'Record Created'}
     except sqlite3.IntegrityError as e:
@@ -35,6 +38,7 @@ def createRecord(jsoninput,timeCaptured):
 
 
 def main():
+    startTime =datetime.now().strftime('%H:%M:%S')
     x = time.perf_counter()
     while True:
         historyAmmount = len(windowHist)
@@ -47,16 +51,21 @@ def main():
         if oldWindow == currentWindowFilter:
            pass
         else:
+            endTime = datetime.now().strftime('%H:%M:%S')
             elapsed = round(((time.perf_counter() - x)/60),2)
             activityDetails={
-                "Full Details":oldWindow,
-                "Program Name":oldWindowName,       
-                "Time Elapsed":f'{elapsed} min',
-                "Time Captured":dateToday
+                "ProgramName": oldWindowName,
+                "StartTime":startTime,
+                "EndTime": endTime,
+                "TimeElapsed": elapsed, 
+                "DateCaptured": dateToday,
+                "FullProgramDetails":oldWindow
             }
-            jsonActivityData= json.dumps(activityDetails)
-            createRecord(jsonActivityData,dateToday)                    
+            # print(activityDetails)
+            createRecord(activityDetails)                    
             x = time.perf_counter()
+            startTime =datetime.now().strftime('%H:%M:%S')
+     
             
     
 
