@@ -7,6 +7,7 @@ import sqlite3
 
 DB_path ='./data/TimeTrackerDB.db' 
 dateToday = datetime.today().strftime('%Y-%m-%d')
+timeFormat = '%H:%M:%S'
 
 def filterWindow(i_name):
     filteredName= i_name.replace('● ','') 
@@ -50,12 +51,12 @@ def main():
         else:
             endTime = datetime.now().strftime('%H:%M:%S')
             # convert time elapsed into readable format HH:MM::SS
-            elapsed = round(((time.perf_counter() - x)/60),2)
+            timeElapsed = datetime.strptime(endTime, timeFormat) - datetime.strptime(startTime, timeFormat)
             activityDetails={
                 "ProgramName": oldWindowName,
                 "StartTime":startTime,
                 "EndTime": endTime,
-                "TimeElapsed": elapsed, 
+                "TimeElapsed": str(timeElapsed), 
                 "DateCaptured": dateToday,
                 "FullProgramDetails":oldWindow
             }
@@ -63,16 +64,20 @@ def main():
             createRecord(activityDetails)                    
             x = time.perf_counter()
             startTime =datetime.now().strftime('%H:%M:%S')
-     
+    return 
 
 if __name__ == '__main__':
-    try:
-        connection = sqlite3.connect(DB_path)            
-        cursor = connection.cursor()  
-        main()
-    except Exception as e:
-        print(e)
-    finally:
-        print("program Terminated ")
-        connection.close()  
-        
+    # try:
+    #     connection = sqlite3.connect(DB_path)            
+    #     cursor = connection.cursor()  
+    #     main()
+    # except Exception as e:
+    #     print(e)
+    # finally:
+    #     print("program Terminated ")
+    #     connection.close()  
+    connection = sqlite3.connect(DB_path)            
+    cursor = connection.cursor()  
+    main()
+    print("program Terminated ")
+    connection.close()  
