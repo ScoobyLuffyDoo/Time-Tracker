@@ -48,6 +48,7 @@ def main():
         # currentWindowName = filterProgramName(currentWindowFilter)
         if oldWindow == currentWindowFilter:
            pass
+        # Check if windows is in sleep mode to pause
         else:
             endTime = datetime.now().strftime('%H:%M:%S')
             # convert time elapsed into readable format HH:MM::SS
