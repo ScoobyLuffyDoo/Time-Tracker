@@ -1,3 +1,4 @@
+from mimetypes import read_mime_types
 import win32gui
 import time
 from datetime import datetime
@@ -26,19 +27,24 @@ def filterProgramName(i_window):
 def createRecord(ProgramData):
 # def createRecord(jsoninput,timeCaptured):
     try:
-        keys =["ProgramName","StartTime","EndTime","TimeElapsed","DateCaptured","FullProgramDetails"]
+        keys =["ProgramName","StartTime","EndTime","TotalTimeElapsed","TimeElapsed","DateCaptured","FullProgramDetails"]
         values = list(map(ProgramData.get,keys))
-        cursor.execute(f'insert into ActivityTable Values(?,?,?,?,?,?)',values)
+        cursor.execute(f'insert into ActivityTable Values(?,?,?,?,?,?,?)',values)
         connection.commit()
     except sqlite3.IntegrityError as e:
         output={"message":str(e) }
     return 
-
+    
+def formatElapsedTime(iTime):
+    timeList = str(iTime).split(":")
+    totalseconds = ((int(timeList[0]) *120)+(int(timeList[1]) *60)+(int(timeList[2])))
+    totalMin = round((totalseconds/60),2)
+    return totalMin
 
 
 def main():
-    startTime =datetime.now().strftime('%H:%M:%S')
-    x = time.perf_counter()
+    # startTime =datetime.now().strftime('%H:%M:%S')
+    startTime = time.strftime(timeFormat, time.localtime())
     while True:
         w=win32gui 
         oldWindow = filterWindow(w.GetWindowText(w.GetForegroundWindow()))
@@ -50,21 +56,21 @@ def main():
            pass
         # Check if windows is in sleep mode to pause
         else:
-            endTime = datetime.now().strftime('%H:%M:%S')
+            endTime = time.strftime(timeFormat, time.localtime())
             # convert time elapsed into readable format HH:MM::SS
-            timeElapsed = datetime.strptime(endTime, timeFormat) - datetime.strptime(startTime, timeFormat)
+            TotaltimeElapsed = datetime.strptime(endTime, timeFormat) - datetime.strptime(startTime, timeFormat)
+            timeElapsed =formatElapsedTime(TotaltimeElapsed)         
             activityDetails={
                 "ProgramName": oldWindowName,
                 "StartTime":startTime,
                 "EndTime": endTime,
-                "TimeElapsed": str(timeElapsed), 
+                "TotalTimeElapsed": str(TotaltimeElapsed), 
+                "TimeElapsed":str(timeElapsed),
                 "DateCaptured": dateToday,
                 "FullProgramDetails":oldWindow
             }
-            # print(activityDetails)
             createRecord(activityDetails)                    
-            x = time.perf_counter()
-            startTime =datetime.now().strftime('%H:%M:%S')
+            startTime = time.strftime(timeFormat, time.localtime())   
     return 
 
 if __name__ == '__main__':
