@@ -4,10 +4,12 @@ import time
 from datetime import datetime
 import json
 import sqlite3
+import re
 
 
 DB_path ='./data/TimeTrackerDB.db' 
-dateToday = datetime.today().strftime('%Y-%m-%d')
+# dateToday = datetime.today().strftime('%Y-%m-%d')
+dateToday = '2022-04-26'
 timeFormat = '%H:%M:%S'
 
 def filterWindow(i_name):
@@ -19,7 +21,7 @@ def filterWindow(i_name):
     return filteredName
 
 def filterProgramName(i_window):
-    programData= i_window.split(' - ')
+    programData= re.split(' - | — ',i_window)
     programDataLenth = len(programData)
     name = programData[programDataLenth-1]
     return name
@@ -65,7 +67,7 @@ def main():
                 "StartTime":startTime,
                 "EndTime": endTime,
                 "TotalTimeElapsed": str(TotaltimeElapsed), 
-                "TimeElapsed":str(timeElapsed),
+                "TimeElapsed":timeElapsed,
                 "DateCaptured": dateToday,
                 "FullProgramDetails":oldWindow
             }

@@ -13,23 +13,18 @@ try:
 except Exception as e:
     print(e)
 cursor = connection.cursor()
-sql = "SELECT ProgramName,TotalTimeElapsed,DateCaptured FROM ActivityTable"
+sql = "SELECT ProgramName,TimeElapsed,DateCaptured FROM ActivityTable"
 cursor.execute(sql)
 output = cursor.fetchall()   
 connection.close()        
 
 
-columnNames =["ProgramName","TotalTimeElapsed", "DateCaptured"]
+columnNames =["ProgramName","TimeElapsed", "DateCaptured"]
 df =pd.DataFrame(output,columns=columnNames)
-df2 = df.groupby('ProgramName')['TimeElapsed'].sum()
-
 print(df)
-# for row in  output:
-#     print(row)        
+df2 = df.groupby(['ProgramName' , 'DateCaptured']).sum()
 
 
-# data = {"pogramName":[],"timeElapsed":[],"capture Date":[]}
-
-# sns.relplot(x="timepoint", y="signal", hue="region", style="event",
-#             kind="line", data=fmri);
-# plt.show()
+sns.relplot(x="DateCaptured", y="TimeElapsed", style="ProgramName",
+            kind="line", data=df);
+plt.show()

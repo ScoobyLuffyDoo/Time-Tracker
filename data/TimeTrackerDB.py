@@ -7,8 +7,9 @@ ActivityTable(
     StartTime TEXT,
     EndTime TEXT,
     TotalTimeElapsed TEXT, 
-    TimeElapsed TEXT,
+    TimeElapsed INTEGER,
     DateCaptured TEXT,
+    TimeCaptured
     FullProgramDetails TEXT
 )
 """
