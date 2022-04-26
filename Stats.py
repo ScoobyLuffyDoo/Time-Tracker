@@ -13,18 +13,18 @@ try:
 except Exception as e:
     print(e)
 cursor = connection.cursor()
-sql = "SELECT ProgramName,TimeElapsed,DateCaptured FROM ActivityTable"
+sql = "SELECT ProgramName,TimeElapsed,DateCaptured FROM ActivityTable Where ProgramName = 'Visual Studio Code' or ProgramName ='Opera'"
 cursor.execute(sql)
 output = cursor.fetchall()   
 connection.close()        
 
 
-columnNames =["ProgramName","TimeElapsed", "DateCaptured"]
+columnNames =["ProgramName","TimeElapsed", "TimeCaptured"]
 df =pd.DataFrame(output,columns=columnNames)
 print(df)
-df2 = df.groupby(['ProgramName' , 'DateCaptured']).sum()
+df2 = df.groupby(['ProgramName' , 'TimeCaptured']).sum()
 
 
-sns.relplot(x="DateCaptured", y="TimeElapsed", style="ProgramName",
-            kind="line", data=df);
+sns.lineplot(x="TimeCaptured", y="TimeElapsed", hue="ProgramName",
+            data=df);
 plt.show()

@@ -29,9 +29,9 @@ def filterProgramName(i_window):
 def createRecord(ProgramData):
 # def createRecord(jsoninput,timeCaptured):
     try:
-        keys =["ProgramName","StartTime","EndTime","TotalTimeElapsed","TimeElapsed","DateCaptured","FullProgramDetails"]
+        keys =["ProgramName","StartTime","EndTime","TotalTimeElapsed","TimeElapsed","TimeCaptured","DateCaptured","FullProgramDetails"]
         values = list(map(ProgramData.get,keys))
-        cursor.execute(f'insert into ActivityTable Values(?,?,?,?,?,?,?)',values)
+        cursor.execute(f'insert into ActivityTable Values(?,?,?,?,?,?,?,?)',values)
         connection.commit()
     except sqlite3.IntegrityError as e:
         output={"message":str(e) }
@@ -61,13 +61,15 @@ def main():
             endTime = time.strftime(timeFormat, time.localtime())
             # convert time elapsed into readable format HH:MM::SS
             TotaltimeElapsed = datetime.strptime(endTime, timeFormat) - datetime.strptime(startTime, timeFormat)
-            timeElapsed =formatElapsedTime(TotaltimeElapsed)         
+            timeElapsed =formatElapsedTime(TotaltimeElapsed)   
+            timeCaptured = time.strftime(timeFormat, time.localtime())      
             activityDetails={
                 "ProgramName": oldWindowName,
                 "StartTime":startTime,
                 "EndTime": endTime,
                 "TotalTimeElapsed": str(TotaltimeElapsed), 
                 "TimeElapsed":timeElapsed,
+                "TimeCaptured": timeCaptured,
                 "DateCaptured": dateToday,
                 "FullProgramDetails":oldWindow
             }
